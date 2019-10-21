@@ -11,19 +11,19 @@
 #define compara " "
 
 
-int CadIguales(char cadena1[MAX],char cadena2[MAX]);
-void Comando(char cadena[MAX], int plano);
-void redirecEntrada(char cadena[MAX]);
-void redirecSalida(char cadena[MAX]);
-void tuberias(char* argumento1[MAX], char* argumento2[MAX]);
-void CrearProceso(char* argumento[MAX], int plano);
+int Comparar(char texto1[MAX],char texto2[MAX]);
+void Ejecutar(char texto[MAX], int plano);
+void cambiarEntrada(char texto[MAX]);
+void cambiarSalida(char texto[MAX]);
+void tuberias(char* parametro1[MAX], char* parametro2[MAX]);
+void NuevoProceso(char* parametro[MAX], int plano);
 
 
 /*La función Main() se ejecutará hasta que el usuario escriba la palabra salir*/
 int main(int argc, char *argv[]){ 
-char cadena[MAX];  
-char cadFin[]="salir";
-int fin=0,i,segplano=0, guardaStdout = dup(1), guardaStdin = dup(0);
+char texto[MAX];  
+char textFinal[]="salir";
+int fin=0,i,segundoPlano=0, guardaStdout = dup(1), guardaStdin = dup(0);
 
 while(fin==0){
         close(1); 
@@ -31,16 +31,16 @@ while(fin==0){
         close(0); 
         dup(guardaStdin); 
 	printf(PROMPT); // Imprimir prompt
-	scanf("\n%[^\n]",cadena); // Entrada
-	segplano=0;
-	for(i=0;cadena[i] != '\0'; i++){
-		if(cadena[i] == '&') {
-					cadena[i] = '\0';
-					segplano = 1;
+	scanf("\n%[^\n]",texto); // Entrada
+	segundoPlano=0;
+	for(i=0;texto[i] != '\0'; i++){
+		if(texto[i] == '&') {
+					texto[i] = '\0';
+					segundoPlano = 1;
 					}
 						}
-	fin=CadIguales(cadena,cadFin); 
-	Comando(cadena,segplano); 
+	fin=Comparar(texto,textFinal); 
+	Ejecutar(texto,segundoPlano); 
 	}
 		
 exit(0);
@@ -48,162 +48,156 @@ exit(0);
 return(0);
 } 
 
-void CrearProceso(char* argumento[MAX],int plano){	
+void NuevoProceso(char* parametro[MAX],int plano){	
 	int estado=0;
 	pid_t hijo; 
 	hijo=fork();
 
 	if (hijo==-1) printf("ERROR Creación de proceso"); 
 	else if (hijo==0) {			
-			execvp(argumento[0],argumento);
-			perror("JASHELL");
+			execvp(parametro[0],parametro);
+			perror("ErrorShell");
 			exit(estado);
 		}else if (plano == 0) hijo=wait(&estado);
 		
 
 } 
 
-int CadIguales(char cadena1[],char cadena2[])
-{
+int Comparar(char texto1[],char texto2[]){
 int i=0;
 int igual=0;
 
-while ((cadena1[i]==cadena2[i])&&(cadena1[i]!='\0')&&(cadena2[i]!='\0')) i++;	
-if ((cadena1[i]==cadena2[i])&&(cadena1[i]=='\0')&&(cadena2[i]=='\0')) exit(0);				
+while ((texto1[i]==texto2[i])&&(texto1[i]!='\0')&&(texto2[i]!='\0')) i++;	
+if ((texto1[i]==texto2[i])&&(texto1[i]=='\0')&&(texto2[i]=='\0')) exit(0);				
 return(igual);
 }
 
-void Comando(char cadena[MAX], int plano){
+void Ejecutar(char texto[MAX], int plano){
 int i,j,k,flag_tuberia;		
-char argumentoInd[MAX][MAX]; 				
-char argumentoInd2[MAX][MAX];
+char parametroInd[MAX][MAX]; 				
+char parametroInd2[MAX][MAX];
 char redirec[MAX];
 char entrada[MAX];
-char *argumento[MAX]; 
-char *argumento2[MAX];
+char *parametro[MAX]; 
+char *parametro2[MAX];
 int ejecutar=0;
-argumento[0] = NULL;					
-argumento2[0] = NULL;
+parametro[0] = NULL;					
+parametro2[0] = NULL;
 flag_tuberia = 0;
 
 	 	k = 0;
 	    i = 0;
-		while(cadena[i] != '\0' && cadena[i] != '|' && cadena[i] != '>'){		
-			for(j=0; cadena[i] != ' ' && cadena[i] != '\0' && cadena[i] != '|'  && cadena[i] != '>' && cadena[i] != '<';j++) { 
-				argumentoInd[k][j] = cadena[i];
+		while(texto[i] != '\0' && texto[i] != '|' && texto[i] != '>'){		
+			for(j=0; texto[i] != ' ' && texto[i] != '\0' && texto[i] != '|'  && texto[i] != '>' && texto[i] != '<';j++) { 
+				parametroInd[k][j] = texto[i];
 				i++;
 			}
 
-			if (cadena[i] == ' ') i++;
+			if (texto[i] == ' ') i++;
 					
-				argumento[k] = argumentoInd[k];
+				parametro[k] = parametroInd[k];
 				k++;
-				if (cadena[i] == '<') { 
+				if (texto[i] == '<') { 
 					i++;
-					if (cadena[i] != ' ') ejecutar=1;
+					if (texto[i] != ' ') ejecutar=1;
 					else { i++;
-						for(j=0; cadena[i] != '\0' && cadena[i] != ' ' && cadena [i] != '|' && cadena [i] != '>'; j++){
-							entrada[j] = cadena[i];
+						for(j=0; texto[i] != '\0' && texto[i] != ' ' && texto [i] != '|' && texto [i] != '>'; j++){
+							entrada[j] = texto[i];
 							i++;
 						}
 						entrada[j] = '\0';
-						if (cadena[i] != '\0') i++;
-							redirecEntrada(entrada);
+						if (texto[i] != '\0') i++;
+							cambiarEntrada(entrada);
 						}
 					}
 					
 			} 
 
-		argumento[k] = NULL;
+		parametro[k] = NULL;
 
-		if (cadena[i] == '|') {
+		if (texto[i] == '|') {
 			k=0;
 			i++;
-			if (cadena[i] != ' ') ejecutar=1;
+			if (texto[i] != ' ') ejecutar=1;
 			else {
 			i++;
 			flag_tuberia = 1;
-			while(cadena[i] != '\0' && cadena[i] != '>'){	 
-					for(j=0; cadena[i] != ' ' && cadena[i] != '\0' && cadena[i] != '>';j++) {
-								argumentoInd2[k][j] = cadena[i];
+			while(texto[i] != '\0' && texto[i] != '>'){	 
+					for(j=0; texto[i] != ' ' && texto[i] != '\0' && texto[i] != '>';j++) {
+								parametroInd2[k][j] = texto[i];
 								i++;}
-					if (cadena[i] == ' ' ) i++;
+					if (texto[i] == ' ' ) i++;
 			
-					argumentoInd2[k][j] = '\0';
-					argumento2[k] = argumentoInd2[k];
+					parametroInd2[k][j] = '\0';
+					parametro2[k] = parametroInd2[k];
 					k++;
 				}
-			argumento2[k] = NULL;
+			parametro2[k] = NULL;
 			}	
 		}
 
 
 		
-		if (cadena[i] == '>') {
+		if (texto[i] == '>') {
 					i++;
-					if (cadena[i] != ' ') ejecutar=1;
+					if (texto[i] != ' ') ejecutar=1;
 					else {
 					i++;
-					for(j=0; cadena[i] != '\0';j++) {
-								redirec[j] = cadena[i];
+					for(j=0; texto[i] != '\0';j++) {
+								redirec[j] = texto[i];
 								i++;}
 					redirec[j] = '\0';
-					redirecSalida(redirec);	
+					cambiarSalida(redirec);	
 					}
 		}
 		if(ejecutar == 0) {
-					if (flag_tuberia==0) CrearProceso(argumento,plano);
+					if (flag_tuberia==0) NuevoProceso(parametro,plano);
 			
-					else tuberias(argumento,argumento2);
+					else tuberias(parametro,parametro2);
 				  }
 		else printf( MSJ_ERROR );
 		
 }
+void cambiarSalida(char texto[MAX]){ 
+  char *textoPtr;
+  textoPtr = texto; // Puntero al texto
+  close (1); 	
+  open (textoPtr,O_CREAT | O_WRONLY,0777); // Asigno a la salida el fichero
 
-void redirecEntrada(char cadena[MAX]){
-  char *cadenaPtr;
+}
+
+void cambiarEntrada(char texto[MAX]){
+  char *textoPtr;
   int fd;  
-  cadenaPtr = cadena; // Puntero a la cadena
-  fd = open (cadenaPtr,O_RDONLY); // Asigno a la salida el fichero
+  textoPtr = texto; // Puntero a la texto
+  fd = open (textoPtr,O_RDONLY); // Asigno a la salida el fichero
   close (0); 
   dup(fd);	
-  
-
 } 
 
-void redirecSalida(char cadena[MAX]){ 
-  char *cadenaPtr;
-  cadenaPtr = cadena; // Puntero a la cadena
-  close (1); 	
-  open (cadenaPtr,O_CREAT | O_WRONLY,0777); // Asigno a la salida el fichero
 
-} 
 
-void tuberias(char* argumento1[MAX], char* argumento2[MAX]){ 
+void tuberias(char* parametro1[MAX], char* parametro2[MAX]){ 
   int fd[2],estado;
 	pid_t hijo; 
 	hijo=fork();
 
 	if (hijo==-1) printf("ERROR Creacion de proceso"); 
-	else if (hijo==0) {
+	else if (hijo==0){
 		pipe(&fd[0]); 
-   		if (fork()!=0) {
+   		if (fork()!=0){
       		close(fd[0]);
       		close(1);
       		dup(fd[1]);
       		close(fd[1]);
-      		execvp(argumento1[0],argumento1);
+      		execvp(parametro1[0],parametro1);
    		}else {
       		close(fd[1]);
       		close(0);
       		dup(fd[0]);
       		close(fd[0]);
-     		execvp(argumento2[0],argumento2);
+     		execvp(parametro2[0],parametro2);
       
   		}
 	}else  hijo=wait(&estado);
 } 
-
-
-
-
