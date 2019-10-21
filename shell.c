@@ -5,10 +5,11 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#define compara " "
-#define MSJ_ERROR "Error de sintaxis\n"
-#define MAX 51
 #define PROMPT "grupo7$> "
+#define MSJ_ERROR "Se produjo un error de sintaxis\n"
+#define MAX 51
+#define compara " "
+
 
 int CadIguales(char cadena1[MAX],char cadena2[MAX]);
 void Comando(char cadena[MAX], int plano);
@@ -18,15 +19,13 @@ void tuberias(char* argumento1[MAX], char* argumento2[MAX]);
 void CrearProceso(char* argumento[MAX], int plano);
 
 
-
-int main(int argc, char *argv[])
-{ 
+/*La función Main() se ejecutará hasta que el usuario escriba la palabra salir*/
+int main(int argc, char *argv[]){ 
 char cadena[MAX];  
-char cadFin[]="FIN";
+char cadFin[]="salir";
 int fin=0,i,segplano=0, guardaStdout = dup(1), guardaStdin = dup(0);
 
-while(fin==0) 
-	{
+while(fin==0){
         close(1); 
         dup(guardaStdout); 
         close(0); 
@@ -47,6 +46,21 @@ while(fin==0)
 exit(0);
 	
 return(0);
+} 
+
+void CrearProceso(char* argumento[MAX],int plano){	
+	int estado=0;
+	pid_t hijo; 
+	hijo=fork();
+
+	if (hijo==-1) printf("ERROR Creación de proceso"); 
+	else if (hijo==0) {			
+			execvp(argumento[0],argumento);
+			perror("JASHELL");
+			exit(estado);
+		}else if (plano == 0) hijo=wait(&estado);
+		
+
 } 
 
 int CadIguales(char cadena1[],char cadena2[])
@@ -146,9 +160,7 @@ flag_tuberia = 0;
 		
 }
 
-void redirecEntrada(char cadena[MAX])
-
-{
+void redirecEntrada(char cadena[MAX]){
   char *cadenaPtr;
   int fd;  
   cadenaPtr = cadena; // Puntero a la cadena
@@ -159,9 +171,7 @@ void redirecEntrada(char cadena[MAX])
 
 } 
 
-void redirecSalida(char cadena[MAX])
-
-{ /* INICIO DE LA FUNCI�N redirecSalida */
+void redirecSalida(char cadena[MAX]){ 
   char *cadenaPtr;
   cadenaPtr = cadena; // Puntero a la cadena
   close (1); 	
@@ -169,54 +179,31 @@ void redirecSalida(char cadena[MAX])
 
 } 
 
-void tuberias(char* argumento1[MAX], char* argumento2[MAX])
-
-{ 
+void tuberias(char* argumento1[MAX], char* argumento2[MAX]){ 
   int fd[2],estado;
 	pid_t hijo; 
 	hijo=fork();
-	
 
 	if (hijo==-1) printf("ERROR Creacion de proceso"); 
 	else if (hijo==0) {
-		   pipe(&fd[0]); 
-   			if (fork()!=0) {
-      				close(fd[0]);
-      				close(1);
-      				dup(fd[1]);
-      				close(fd[1]);
-      				execvp(argumento1[0],argumento1);
-   				}
-   			else {
-      				close(fd[1]);
-      				close(0);
-      				dup(fd[0]);
-      				close(fd[0]);
-     				execvp(argumento2[0],argumento2);
+		pipe(&fd[0]); 
+   		if (fork()!=0) {
+      		close(fd[0]);
+      		close(1);
+      		dup(fd[1]);
+      		close(fd[1]);
+      		execvp(argumento1[0],argumento1);
+   		}else {
+      		close(fd[1]);
+      		close(0);
+      		dup(fd[0]);
+      		close(fd[0]);
+     		execvp(argumento2[0],argumento2);
       
-  				 }
-		   }
-	else  hijo=wait(&estado);
+  		}
+	}else  hijo=wait(&estado);
 } 
 
 
-void CrearProceso(char* argumento[MAX],int plano)
 
-{	
-	int estado=0;
-	pid_t hijo; 
-	hijo=fork();
-
-if (hijo==-1) printf("ERROR Creacion de proceso"); 
-else if (hijo==0) {
-			
-			execvp(argumento[0],argumento);
-			perror("JASHELL");
-			exit(estado);
-		   }
-else  { 
-		if (plano == 0) hijo=wait(&estado);
-		}
-
-} 
 
