@@ -7,7 +7,7 @@
 
 #define prompt "grupo7$> "
 #define mensaje_error "Se produjo un error de sintaxis\n"
-#define MAX 60
+#define MAX 50
 #define compara " "
 
 
@@ -80,7 +80,7 @@ char redirec[MAX];
 char entrada[MAX];
 char *parametro[MAX]; 
 char *parametro2[MAX];
-int ejecutar=0;
+int ejecucion=0;
 parametro[0] = NULL;					
 parametro2[0] = NULL;
 flag_tuberia = 0;
@@ -99,7 +99,7 @@ flag_tuberia = 0;
 				k++;
 				if (texto[i] == '<') { 
 					i++;
-					if (texto[i] != ' ') ejecutar=1;
+					if (texto[i] != ' ') ejecucion=1;
 					else { i++;
 						for(j=0; texto[i] != '\0' && texto[i] != ' ' && texto [i] != '|' && texto [i] != '>'; j++){
 							entrada[j] = texto[i];
@@ -118,7 +118,7 @@ flag_tuberia = 0;
 		if (texto[i] == '|') {
 			k=0;
 			i++;
-			if (texto[i] != ' ') ejecutar=1;
+			if (texto[i] != ' ') ejecucion=1;
 			else {
 			i++;
 			flag_tuberia = 1;
@@ -140,7 +140,7 @@ flag_tuberia = 0;
 		
 		if (texto[i] == '>') {
 					i++;
-					if (texto[i] != ' ') ejecutar=1;
+					if (texto[i] != ' ') ejecucion=1;
 					else {
 					i++;
 					for(j=0; texto[i] != '\0';j++) {
@@ -150,7 +150,7 @@ flag_tuberia = 0;
 					cambiarSalida(redirec);	
 					}
 		}
-		if(ejecutar == 0) {
+		if(ejecucion == 0) {
 					if (flag_tuberia==0) NuevoProceso(parametro,plano);
 			
 					else tuberias(parametro,parametro2);
