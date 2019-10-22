@@ -5,9 +5,9 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#define PROMPT "grupo7$> "
-#define MSJ_ERROR "Se produjo un error de sintaxis\n"
-#define MAX 51
+#define prompt "grupo7$> "
+#define mensaje_error "Se produjo un error de sintaxis\n"
+#define MAX 60
 #define compara " "
 
 
@@ -30,7 +30,7 @@ while(fin==0){
         dup(guardaStdout); 
         close(0); 
         dup(guardaStdin); 
-	printf(PROMPT); // Imprimir prompt
+	printf(prompt); // Imprimir prompt
 	scanf("\n%[^\n]",texto); // Entrada
 	segundoPlano=0;
 	for(i=0;texto[i] != '\0'; i++){
@@ -155,7 +155,7 @@ flag_tuberia = 0;
 			
 					else tuberias(parametro,parametro2);
 				  }
-		else printf( MSJ_ERROR );
+		else printf( mensaje_error );
 		
 }
 void cambiarSalida(char texto[MAX]){ 
